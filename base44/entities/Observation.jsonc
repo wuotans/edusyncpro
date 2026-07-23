@@ -1,0 +1,46 @@
+{
+  "name": "Observation",
+  "type": "object",
+  "properties": {
+    "school_id": {
+      "type": "string"
+    },
+    "teacher_id": {
+      "type": "string"
+    },
+    "student_id": {
+      "type": "string"
+    },
+    "class_id": {
+      "type": "string"
+    },
+    "subject_id": {
+      "type": "string"
+    },
+    "content": {
+      "type": "string",
+      "description": "Observation text"
+    },
+    "type": {
+      "type": "string",
+      "enum": [
+        "behavior",
+        "academic",
+        "attendance",
+        "health",
+        "other"
+      ],
+      "default": "academic"
+    },
+    "date": {
+      "type": "string",
+      "format": "date"
+    }
+  },
+  "required": [
+    "school_id",
+    "teacher_id",
+    "student_id",
+    "content"
+  ]
+}

@@ -1,0 +1,28 @@
+{
+  "name": "TeacherAssignment",
+  "type": "object",
+  "properties": {
+    "school_id": {
+      "type": "string",
+      "description": "Reference to School"
+    },
+    "teacher_id": {
+      "type": "string",
+      "description": "Reference to User (teacher)"
+    },
+    "class_id": {
+      "type": "string",
+      "description": "Reference to SchoolClass"
+    },
+    "subject_id": {
+      "type": "string",
+      "description": "Reference to Subject"
+    }
+  },
+  "required": [
+    "school_id",
+    "teacher_id",
+    "class_id",
+    "subject_id"
+  ]
+}

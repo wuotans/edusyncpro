@@ -1,0 +1,59 @@
+{
+  "name": "Grade",
+  "type": "object",
+  "properties": {
+    "school_id": {
+      "type": "string"
+    },
+    "teacher_id": {
+      "type": "string"
+    },
+    "class_id": {
+      "type": "string"
+    },
+    "subject_id": {
+      "type": "string"
+    },
+    "student_id": {
+      "type": "string"
+    },
+    "activity_id": {
+      "type": "string",
+      "description": "Optional reference to Activity"
+    },
+    "label": {
+      "type": "string",
+      "description": "e.g. Prova 1, Trabalho, etc."
+    },
+    "score": {
+      "type": "number"
+    },
+    "max_score": {
+      "type": "number",
+      "default": 10
+    },
+    "period": {
+      "type": "string",
+      "enum": [
+        "1_bimestre",
+        "2_bimestre",
+        "3_bimestre",
+        "4_bimestre"
+      ],
+      "default": "1_bimestre"
+    },
+    "date": {
+      "type": "string",
+      "format": "date"
+    }
+  },
+  "required": [
+    "school_id",
+    "teacher_id",
+    "class_id",
+    "subject_id",
+    "student_id",
+    "label",
+    "score"
+  ]
+}

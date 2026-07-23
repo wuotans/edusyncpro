@@ -1,0 +1,39 @@
+{
+  "name": "SchoolClass",
+  "type": "object",
+  "properties": {
+    "school_id": {
+      "type": "string",
+      "description": "Reference to School"
+    },
+    "name": {
+      "type": "string",
+      "description": "Class name, e.g. 1\u00ba Ano, 2\u00ba Ano"
+    },
+    "year": {
+      "type": "string",
+      "description": "Academic year"
+    },
+    "shift": {
+      "type": "string",
+      "enum": [
+        "morning",
+        "afternoon",
+        "evening"
+      ],
+      "default": "morning"
+    },
+    "status": {
+      "type": "string",
+      "enum": [
+        "active",
+        "inactive"
+      ],
+      "default": "active"
+    }
+  },
+  "required": [
+    "school_id",
+    "name"
+  ]
+}

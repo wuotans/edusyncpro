@@ -1,0 +1,61 @@
+{
+  "name": "Activity",
+  "type": "object",
+  "properties": {
+    "school_id": {
+      "type": "string"
+    },
+    "teacher_id": {
+      "type": "string"
+    },
+    "class_id": {
+      "type": "string"
+    },
+    "subject_id": {
+      "type": "string"
+    },
+    "title": {
+      "type": "string",
+      "description": "Activity title"
+    },
+    "description": {
+      "type": "string",
+      "description": "Activity description"
+    },
+    "type": {
+      "type": "string",
+      "enum": [
+        "homework",
+        "classwork",
+        "project",
+        "presentation",
+        "other"
+      ],
+      "default": "classwork"
+    },
+    "due_date": {
+      "type": "string",
+      "format": "date"
+    },
+    "max_score": {
+      "type": "number",
+      "description": "Maximum score for this activity"
+    },
+    "status": {
+      "type": "string",
+      "enum": [
+        "pending",
+        "in_progress",
+        "completed"
+      ],
+      "default": "pending"
+    }
+  },
+  "required": [
+    "school_id",
+    "teacher_id",
+    "class_id",
+    "subject_id",
+    "title"
+  ]
+}
