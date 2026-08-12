@@ -2,33 +2,23 @@
 
 ## Project Context
 
-This is a Base44 app repository. Treat it as user-owned application code, keep changes focused on the user's request, and preserve existing project conventions.
+EduSync Pro é uma aplicação web de gestão escolar baseada em React e Vite. O frontend deve permanecer desacoplado de fornecedores específicos e consumir o backend exclusivamente pela camada REST centralizada em `src/api/apiClient.js`.
 
-Start with `README.md` for local setup, environment variables, and publish workflow.
-
-## Base44 References
-
-- CLI overview: https://docs.base44.com/developers/references/cli/get-started/overview.md
-- Agent skills: https://docs.base44.com/developers/backend/overview/skills.md
-
-If your agent supports Agent Skills, install or update Base44 skills before Base44-specific work:
-
-```bash
-npx skills add base44/skills
-```
+Comece pelo `README.md` para configuração local, variáveis de ambiente e contrato esperado da API.
 
 ## Key Files
 
-- `src/`: frontend application source.
-- `src/api/base44Client.js`: frontend Base44 SDK client.
-- `vite.config.js`: Vite config and Base44 Vite plugin setup.
-- `.env.local`: local-only environment values; never commit secrets.
+- `src/`: código-fonte do frontend.
+- `src/api/apiClient.js`: cliente HTTP e contrato de acesso ao backend.
+- `vite.config.js`: configuração do Vite.
+- `.env.local`: variáveis locais; nunca versionar segredos.
 
 ## Working Notes
 
-- Use `base44 dev` as the default local development command when you need the local Base44 backend. It can run the backend and frontend together.
-- When docs or code mention the frontend being started automatically, that usually means the Base44 project config includes `site.serveCommand`, for example `"serveCommand": "npm run dev"` in `base44/config.jsonc`.
-- Use `npm run dev` only for frontend-only work against the hosted Base44 backend.
-- Prefer the existing Base44 CLI workflow over adding new npm scripts for Base44-specific tasks.
-- Reuse the existing SDK client and Vite plugin patterns before adding new Base44 integration paths.
-- Run the relevant checks from `package.json` before finishing code changes.
+- Use `npm install` para instalar as dependências.
+- Use `npm run dev` para desenvolvimento local.
+- Use `npm run build` para validar o build de produção.
+- Mantenha chamadas HTTP centralizadas em `src/api/apiClient.js`.
+- Novos recursos de backend devem usar endpoints REST configuráveis por `VITE_API_URL`.
+- Preserve a separação de perfis entre super administrador, administrador escolar e professor.
+- Execute os checks relevantes definidos em `package.json` antes de finalizar alterações.
