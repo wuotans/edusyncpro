@@ -44,6 +44,7 @@ async function request(path, options = {}) {
 }
 
 const entityPath = (name) => `/entities/${name}`;
+
 const encodeFilters = (filters = {}) => {
   const params = new URLSearchParams();
   Object.entries(filters).forEach(([key, value]) => {
@@ -58,6 +59,7 @@ const createEntityClient = (name) => ({
   filter: (filters) => request(`${entityPath(name)}${encodeFilters(filters)}`),
   get: (id) => request(`${entityPath(name)}/${id}`),
   create: (data) => request(entityPath(name), { method: 'POST', body: data }),
+  bulkCreate: (items) => request(`${entityPath(name)}/bulk`, { method: 'POST', body: items }),
   update: (id, data) => request(`${entityPath(name)}/${id}`, { method: 'PUT', body: data }),
   delete: (id) => request(`${entityPath(name)}/${id}`, { method: 'DELETE' }),
 });
@@ -93,6 +95,12 @@ export const api = {
     redirectToLogin: (redirectTo = window.location.href) => {
       window.location.href = `/login?redirect=${encodeURIComponent(redirectTo)}`;
     },
+  },
+  users: {
+    inviteUser: (email, role, schoolId = null) => request('/users/invite', {
+      method: 'POST',
+      body: { email, role, school_id: schoolId },
+    }),
   },
   entities: {
     Activity: createEntityClient('activities'),
