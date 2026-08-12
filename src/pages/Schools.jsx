@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
-import { base44 } from '@/api/base44Client';
-import { School, Plus, Edit, Trash2, Search, X } from 'lucide-react';
+import { api } from '@/api/apiClient';
+import { School, Plus, Edit, Trash2, Search } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/ui/dialog';
@@ -9,166 +9,14 @@ import { useToast } from '@/components/ui/use-toast';
 
 export default function Schools() {
   const { toast } = useToast();
-  const [schools, setSchools] = useState([]);
-  const [loading, setLoading] = useState(true);
-  const [search, setSearch] = useState('');
-  const [dialogOpen, setDialogOpen] = useState(false);
-  const [editing, setEditing] = useState(null);
-  const [form, setForm] = useState({ name: '', address: '', phone: '', email: '', status: 'active' });
-
-  const load = async () => {
-    try {
-      const data = await base44.entities.School.list();
-      setSchools(data);
-    } catch (e) { console.error(e); }
-    finally { setLoading(false); }
-  };
-
+  const [schools, setSchools] = useState([]); const [loading, setLoading] = useState(true); const [search, setSearch] = useState(''); const [dialogOpen, setDialogOpen] = useState(false); const [editing, setEditing] = useState(null); const [form, setForm] = useState({ name: '', address: '', phone: '', email: '', status: 'active' });
+  const load = async () => { try { setSchools(await api.entities.School.list()); } catch (e) { console.error(e); } finally { setLoading(false); } };
   useEffect(() => { load(); }, []);
-
-  const openCreate = () => {
-    setEditing(null);
-    setForm({ name: '', address: '', phone: '', email: '', status: 'active' });
-    setDialogOpen(true);
-  };
-
-  const openEdit = (school) => {
-    setEditing(school);
-    setForm({ name: school.name, address: school.address || '', phone: school.phone || '', email: school.email || '', status: school.status || 'active' });
-    setDialogOpen(true);
-  };
-
-  const handleSave = async () => {
-    if (!form.name.trim()) return;
-    try {
-      if (editing) {
-        await base44.entities.School.update(editing.id, form);
-        toast({ title: 'Escola atualizada' });
-      } else {
-        await base44.entities.School.create(form);
-        toast({ title: 'Escola criada' });
-      }
-      setDialogOpen(false);
-      load();
-    } catch (e) {
-      toast({ title: 'Erro ao salvar', variant: 'destructive' });
-    }
-  };
-
-  const handleDelete = async (id) => {
-    if (!confirm('Deseja realmente excluir esta escola?')) return;
-    try {
-      await base44.entities.School.delete(id);
-      toast({ title: 'Escola excluída' });
-      load();
-    } catch (e) {
-      toast({ title: 'Erro ao excluir', variant: 'destructive' });
-    }
-  };
-
+  const openCreate = () => { setEditing(null); setForm({ name: '', address: '', phone: '', email: '', status: 'active' }); setDialogOpen(true); };
+  const openEdit = (school) => { setEditing(school); setForm({ name: school.name, address: school.address || '', phone: school.phone || '', email: school.email || '', status: school.status || 'active' }); setDialogOpen(true); };
+  const handleSave = async () => { if (!form.name.trim()) return; try { if (editing) { await api.entities.School.update(editing.id, form); toast({ title: 'Escola atualizada' }); } else { await api.entities.School.create(form); toast({ title: 'Escola criada' }); } setDialogOpen(false); load(); } catch { toast({ title: 'Erro ao salvar', variant: 'destructive' }); } };
+  const handleDelete = async (id) => { if (!confirm('Deseja realmente excluir esta escola?')) return; try { await api.entities.School.delete(id); toast({ title: 'Escola excluída' }); load(); } catch { toast({ title: 'Erro ao excluir', variant: 'destructive' }); } };
   const filtered = schools.filter(s => s.name.toLowerCase().includes(search.toLowerCase()));
-
   if (loading) return <div className="flex items-center justify-center h-64"><div className="w-8 h-8 border-4 border-cyan-100 border-t-cyan-500 rounded-full animate-spin" /></div>;
-
-  return (
-    <div className="space-y-6">
-      <div className="flex items-center justify-between">
-        <div>
-          <h1 className="text-2xl font-bold text-slate-900">Escolas</h1>
-          <p className="text-sm text-slate-500 mt-1">{schools.length} escolas cadastradas</p>
-        </div>
-        <Button onClick={openCreate} className="bg-gradient-to-r from-cyan-500 to-cyan-600 hover:from-cyan-600 hover:to-cyan-700 text-white rounded-xl shadow-sm">
-          <Plus className="w-4 h-4 mr-2" /> Nova Escola
-        </Button>
-      </div>
-
-      <div className="relative">
-        <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-400" />
-        <Input 
-          placeholder="Buscar escola..." 
-          value={search} 
-          onChange={e => setSearch(e.target.value)}
-          className="pl-10 rounded-xl border-slate-200"
-        />
-      </div>
-
-      {filtered.length === 0 ? (
-        <div className="bg-white rounded-2xl border border-slate-100 p-12 text-center">
-          <School className="w-10 h-10 text-slate-200 mx-auto mb-3" />
-          <p className="text-sm text-slate-400">Nenhuma escola encontrada</p>
-        </div>
-      ) : (
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
-          {filtered.map(school => (
-            <div key={school.id} className="bg-white rounded-2xl border border-slate-100 shadow-sm hover:shadow-md transition-shadow">
-              <div className="p-5">
-                <div className="flex items-start justify-between mb-3">
-                  <div className="w-10 h-10 rounded-xl bg-cyan-50 flex items-center justify-center">
-                    <School className="w-5 h-5 text-cyan-600" />
-                  </div>
-                  <span className={`text-[11px] font-medium px-2.5 py-1 rounded-full ${
-                    school.status === 'active' ? 'bg-emerald-50 text-emerald-600' : 'bg-slate-100 text-slate-400'
-                  }`}>
-                    {school.status === 'active' ? 'Ativa' : 'Inativa'}
-                  </span>
-                </div>
-                <h3 className="text-base font-semibold text-slate-900">{school.name}</h3>
-                {school.address && <p className="text-xs text-slate-400 mt-1">{school.address}</p>}
-                {school.email && <p className="text-xs text-slate-400">{school.email}</p>}
-              </div>
-              <div className="px-5 py-3 border-t border-slate-50 flex items-center gap-2 justify-end">
-                <button onClick={() => openEdit(school)} className="p-2 rounded-lg hover:bg-slate-50 text-slate-400 hover:text-slate-600 transition-colors">
-                  <Edit className="w-4 h-4" />
-                </button>
-                <button onClick={() => handleDelete(school.id)} className="p-2 rounded-lg hover:bg-red-50 text-slate-400 hover:text-red-500 transition-colors">
-                  <Trash2 className="w-4 h-4" />
-                </button>
-              </div>
-            </div>
-          ))}
-        </div>
-      )}
-
-      <Dialog open={dialogOpen} onOpenChange={setDialogOpen}>
-        <DialogContent className="rounded-2xl max-w-md">
-          <DialogHeader>
-            <DialogTitle>{editing ? 'Editar Escola' : 'Nova Escola'}</DialogTitle>
-          </DialogHeader>
-          <div className="space-y-4 mt-4">
-            <div>
-              <label className="text-xs font-medium text-slate-600 mb-1.5 block">Nome *</label>
-              <Input value={form.name} onChange={e => setForm({ ...form, name: e.target.value })} className="rounded-xl" />
-            </div>
-            <div>
-              <label className="text-xs font-medium text-slate-600 mb-1.5 block">Endereço</label>
-              <Input value={form.address} onChange={e => setForm({ ...form, address: e.target.value })} className="rounded-xl" />
-            </div>
-            <div className="grid grid-cols-2 gap-3">
-              <div>
-                <label className="text-xs font-medium text-slate-600 mb-1.5 block">Telefone</label>
-                <Input value={form.phone} onChange={e => setForm({ ...form, phone: e.target.value })} className="rounded-xl" />
-              </div>
-              <div>
-                <label className="text-xs font-medium text-slate-600 mb-1.5 block">Email</label>
-                <Input value={form.email} onChange={e => setForm({ ...form, email: e.target.value })} className="rounded-xl" />
-              </div>
-            </div>
-            <div>
-              <label className="text-xs font-medium text-slate-600 mb-1.5 block">Status</label>
-              <Select value={form.status} onValueChange={v => setForm({ ...form, status: v })}>
-                <SelectTrigger className="rounded-xl"><SelectValue /></SelectTrigger>
-                <SelectContent>
-                  <SelectItem value="active">Ativa</SelectItem>
-                  <SelectItem value="inactive">Inativa</SelectItem>
-                </SelectContent>
-              </Select>
-            </div>
-            <Button onClick={handleSave} className="w-full bg-gradient-to-r from-cyan-500 to-cyan-600 hover:from-cyan-600 hover:to-cyan-700 text-white rounded-xl">
-              {editing ? 'Salvar Alterações' : 'Criar Escola'}
-            </Button>
-          </div>
-        </DialogContent>
-      </Dialog>
-    </div>
-  );
+  return <div className="space-y-6"><div className="flex items-center justify-between"><div><h1 className="text-2xl font-bold text-slate-900">Escolas</h1><p className="text-sm text-slate-500 mt-1">{schools.length} escolas cadastradas</p></div><Button onClick={openCreate} className="bg-gradient-to-r from-cyan-500 to-cyan-600 hover:from-cyan-600 hover:to-cyan-700 text-white rounded-xl shadow-sm"><Plus className="w-4 h-4 mr-2" /> Nova Escola</Button></div><div className="relative"><Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-400" /><Input placeholder="Buscar escola..." value={search} onChange={e => setSearch(e.target.value)} className="pl-10 rounded-xl border-slate-200" /></div>{filtered.length === 0 ? <div className="bg-white rounded-2xl border border-slate-100 p-12 text-center"><School className="w-10 h-10 text-slate-200 mx-auto mb-3" /><p className="text-sm text-slate-400">Nenhuma escola encontrada</p></div> : <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">{filtered.map(school => <div key={school.id} className="bg-white rounded-2xl border border-slate-100 shadow-sm hover:shadow-md transition-shadow"><div className="p-5"><div className="flex items-start justify-between mb-3"><div className="w-10 h-10 rounded-xl bg-cyan-50 flex items-center justify-center"><School className="w-5 h-5 text-cyan-600" /></div><span className={`text-[11px] font-medium px-2.5 py-1 rounded-full ${school.status === 'active' ? 'bg-emerald-50 text-emerald-600' : 'bg-slate-100 text-slate-400'}`}>{school.status === 'active' ? 'Ativa' : 'Inativa'}</span></div><h3 className="text-base font-semibold text-slate-900">{school.name}</h3>{school.address && <p className="text-xs text-slate-400 mt-1">{school.address}</p>}{school.email && <p className="text-xs text-slate-400">{school.email}</p>}</div><div className="px-5 py-3 border-t border-slate-50 flex items-center gap-2 justify-end"><button onClick={() => openEdit(school)} className="p-2 rounded-lg hover:bg-slate-50 text-slate-400 hover:text-slate-600 transition-colors"><Edit className="w-4 h-4" /></button><button onClick={() => handleDelete(school.id)} className="p-2 rounded-lg hover:bg-red-50 text-slate-400 hover:text-red-500 transition-colors"><Trash2 className="w-4 h-4" /></button></div></div>)}</div>}<Dialog open={dialogOpen} onOpenChange={setDialogOpen}><DialogContent className="rounded-2xl max-w-md"><DialogHeader><DialogTitle>{editing ? 'Editar Escola' : 'Nova Escola'}</DialogTitle></DialogHeader><div className="space-y-4 mt-4"><div><label className="text-xs font-medium text-slate-600 mb-1.5 block">Nome *</label><Input value={form.name} onChange={e => setForm({ ...form, name: e.target.value })} className="rounded-xl" /></div><div><label className="text-xs font-medium text-slate-600 mb-1.5 block">Endereço</label><Input value={form.address} onChange={e => setForm({ ...form, address: e.target.value })} className="rounded-xl" /></div><div className="grid grid-cols-2 gap-3"><div><label className="text-xs font-medium text-slate-600 mb-1.5 block">Telefone</label><Input value={form.phone} onChange={e => setForm({ ...form, phone: e.target.value })} className="rounded-xl" /></div><div><label className="text-xs font-medium text-slate-600 mb-1.5 block">Email</label><Input value={form.email} onChange={e => setForm({ ...form, email: e.target.value })} className="rounded-xl" /></div></div><div><label className="text-xs font-medium text-slate-600 mb-1.5 block">Status</label><Select value={form.status} onValueChange={v => setForm({ ...form, status: v })}><SelectTrigger className="rounded-xl"><SelectValue /></SelectTrigger><SelectContent><SelectItem value="active">Ativa</SelectItem><SelectItem value="inactive">Inativa</SelectItem></SelectContent></Select></div><Button onClick={handleSave} className="w-full bg-gradient-to-r from-cyan-500 to-cyan-600 hover:from-cyan-600 hover:to-cyan-700 text-white rounded-xl">{editing ? 'Salvar Alterações' : 'Criar Escola'}</Button></div></DialogContent></Dialog></div>;
 }
