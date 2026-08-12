@@ -1,77 +1,176 @@
-# Base44 Project
+# EduSync Pro
 
-Use this repository to run and edit the app locally, then publish changes back through Base44.
+EduSync Pro é uma aplicação web para gestão escolar, desenvolvida com React, Vite e Tailwind CSS.
 
-Any change pushed to the repo will also be reflected in the Base44 Builder.
+O frontend é independente de plataforma proprietária e consome uma API REST configurável. Autenticação, usuários, escolas, turmas, alunos, professores, matérias, atividades, notas, observações e planos de aula são fornecidos pelo backend da aplicação.
 
-## Prerequisites
+## Tecnologias
 
-1. Clone the repository using the project's Git URL.
-2. Navigate to the project directory.
-3. Install dependencies: `npm install`.
-4. Install the Base44 CLI: `npm install -g base44@latest`.
+- React 18
+- Vite
+- React Router
+- TanStack Query
+- Tailwind CSS
+- Radix UI
+- Framer Motion
+- Lucide React
 
-See the [Base44 CLI docs](https://docs.base44.com/developers/references/cli/get-started/overview) if you want to run Base44 commands directly.
+## Requisitos
 
-## Run Locally
+- Node.js 18 ou superior
+- npm
+- Uma API REST compatível com o contrato descrito abaixo
 
-Run the full local development environment from the project root:
+## Instalação
 
 ```bash
-base44 dev
+git clone https://github.com/wuotans/edusyncpro.git
+cd edusyncpro
+npm install
 ```
 
-`base44 dev` starts the local Base44 development backend and, when this app is configured for it, also starts the frontend dev server for you. Use the frontend URL printed by the command.
+Crie um arquivo `.env.local` na raiz do projeto:
 
-For example, when the Base44 project config includes a `serveCommand`, `base44 dev` can launch the frontend too:
-
-```json5
-{
-  "site": {
-    "serveCommand": "npm run dev"
-  }
-}
+```env
+VITE_API_URL=http://localhost:3000/api
 ```
 
-In a Base44 project this lives in `base44/config.jsonc`.
+Se `VITE_API_URL` não for informado, o frontend utiliza `/api`.
 
-## Run Only The Frontend
-
-If you only want to work on the frontend against the hosted Base44 backend, run:
+## Rodando localmente
 
 ```bash
 npm run dev
 ```
 
-Open the local URL printed by Vite.
-
-## Use The Hosted Backend
-
-For frontend-only development, create or update `.env.local` in the project root:
+Build de produção:
 
 ```bash
-VITE_BASE44_APP_ID=your_app_id
-VITE_BASE44_APP_BASE_URL=https://your-app.base44.app
+npm run build
 ```
 
-`VITE_BASE44_APP_ID` identifies the Base44 app.
-
-`VITE_BASE44_APP_BASE_URL` tells the Base44 Vite plugin where to send local `/api` requests. Point it at your deployed Base44 app URL when you want the local frontend to use the hosted backend.
-
-When you use `base44 dev`, the command injects the local Base44 values for you, so `.env.local` is mainly needed for frontend-only workflows.
-
-## Publish Your Changes
-
-After pushing your changes to git, open the Base44 dashboard and publish the app:
+Visualizar o build localmente:
 
 ```bash
-base44 dashboard open
+npm run preview
 ```
 
-## Docs & Support
+## API esperada
 
-Documentation: [https://docs.base44.com/Integrations/Using-GitHub](https://docs.base44.com/Integrations/Using-GitHub)
+Toda a comunicação HTTP fica centralizada em `src/api/apiClient.js`.
 
-Base44 CLI command reference: [https://docs.base44.com/developers/references/cli/commands/introduction](https://docs.base44.com/developers/references/cli/commands/introduction)
+### Autenticação
 
-Support: [https://app.base44.com/support](https://app.base44.com/support)
+```text
+POST /auth/login
+GET  /auth/me
+POST /auth/register
+POST /auth/verify-otp
+POST /auth/resend-otp
+POST /auth/forgot-password
+POST /auth/reset-password
+GET  /auth/oauth/google
+```
+
+O login e a validação OTP podem retornar `access_token`. O token é armazenado no `localStorage` com a chave `edusync_access_token` e enviado como:
+
+```text
+Authorization: Bearer <token>
+```
+
+### Convites de usuários
+
+```text
+POST /users/invite
+```
+
+Payload esperado:
+
+```json
+{
+  "email": "usuario@exemplo.com",
+  "role": "teacher",
+  "school_id": "id-da-escola"
+}
+```
+
+### Entidades
+
+O frontend utiliza estes recursos:
+
+- `/entities/activities`
+- `/entities/grades`
+- `/entities/lesson-plans`
+- `/entities/observations`
+- `/entities/schools`
+- `/entities/classes`
+- `/entities/students`
+- `/entities/subjects`
+- `/entities/teacher-assignments`
+- `/entities/users`
+
+Cada recurso deve suportar:
+
+```text
+GET    /entities/<recurso>
+GET    /entities/<recurso>?campo=valor
+GET    /entities/<recurso>/:id
+POST   /entities/<recurso>
+POST   /entities/<recurso>/bulk
+PUT    /entities/<recurso>/:id
+DELETE /entities/<recurso>/:id
+```
+
+O endpoint `/bulk` recebe um array JSON e é utilizado, por exemplo, para lançamento de várias notas de uma só vez.
+
+## Estrutura principal
+
+```text
+src/
+├── api/
+│   └── apiClient.js
+├── components/
+├── hooks/
+├── lib/
+├── pages/
+└── main.jsx
+```
+
+## Perfis de usuário
+
+A aplicação trabalha com:
+
+- Super administrador
+- Administrador escolar
+- Professor
+
+As permissões são determinadas pelo campo `role` retornado por `/auth/me`.
+
+## Módulos
+
+- Dashboard administrativo
+- Gestão de escolas
+- Gestão de usuários
+- Gestão de professores
+- Gestão de turmas
+- Gestão de alunos
+- Gestão de matérias
+- Atividades escolares
+- Lançamento de notas
+- Observações
+- Planos de aula
+
+## Scripts
+
+```bash
+npm run dev
+npm run build
+npm run preview
+npm run lint
+npm run lint:fix
+npm run typecheck
+```
+
+## Desenvolvimento
+
+Mantenha todas as chamadas ao backend em `src/api/apiClient.js`. As páginas React não devem depender diretamente de SDKs de fornecedores externos. Assim, o backend pode ser implementado ou substituído sem reescrever a interface inteira.

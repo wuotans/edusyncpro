@@ -1,5 +1,5 @@
 import { useState, useEffect } from 'react';
-import { base44 } from '@/api/base44Client';
+import { api } from '@/api/apiClient';
 
 export function useUserRole() {
   const [user, setUser] = useState(null);
@@ -8,7 +8,7 @@ export function useUserRole() {
   useEffect(() => {
     const load = async () => {
       try {
-        const me = await base44.auth.me();
+        const me = await api.auth.me();
         setUser(me);
       } catch (e) {
         console.error(e);
